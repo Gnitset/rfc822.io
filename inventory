@@ -1,0 +1,4 @@
+[mailserver]
+localhost	ansible_connection=local
+[mailserver:vars]
+db_password = "verysecretpassword"

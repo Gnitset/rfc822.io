@@ -1,0 +1,15 @@
+---
+- hosts: mailserver
+  vars:
+    mail_home: /opt/vmail
+    mail_user: vmail
+    mail_uid: 5000
+    db_name: rfc822
+    db_user: rfc822
+  roles:
+    - dehydrated
+    - postgres
+    - spamassassin
+    - postfix
+    - dovecot
+    - spammilter
