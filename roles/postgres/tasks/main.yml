@@ -1,0 +1,46 @@
+---
+- name: Ensure postgres and dependencies are installed
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - postgresql-9.6
+    - postgresql-contrib-9.6
+    - python-psycopg2
+
+- name: Create database for mail system
+  become_user: postgres
+  postgresql_db:
+    name: "{{ db_name }}"
+  register: db_create
+
+- name: Create user for mail system database
+  become_user: postgres
+  postgresql_user:
+    db: "{{ db_name }}"
+    user: "{{ db_user }}_{{ item }}"
+    password: "{{ db_password }}"
+    encrypted: yes
+  with_items:
+    - dovecot
+    - postfix
+    - spamd
+
+- name: Copy db-schema file
+  become_user: postgres
+  template:
+    src: "schema.sql"
+    dest: "/tmp/rfc822-schema.sql"
+  when: db_create.changed
+
+- name: Install db-schema
+  become_user: postgres
+  command: "psql -U postgres -f /tmp/rfc822-schema.sql {{ db_name }}"
+  when: db_create.changed
+
+- name: Remove db-schema file
+  become_user: postgres
+  file:
+    path: "/tmp/rfc822-schema.sql"
+    state: absent
+  when: db_create.changed
