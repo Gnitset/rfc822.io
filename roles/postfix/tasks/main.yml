@@ -1,0 +1,82 @@
+---
+- name: Ensure postfix and dependencies are installed
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - postfix
+    - postfix-pgsql
+
+- name: Reconfigure postfix main.cf
+  lineinfile:
+    dest: "/etc/postfix/main.cf"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  with_items:
+    - regexp: smtpd_tls_cert_file.*
+      line: "smtpd_tls_cert_file = /var/lib/dehydrated/certs/{{ ansible_fqdn }}/fullchain.pem"
+    - regexp: smtpd_tls_key_file.*
+      line: "smtpd_tls_key_file = /var/lib/dehydrated/certs/{{ ansible_fqdn }}/privkey.pem"
+    - regexp: disable_vrfy_command.*
+      line: disable_vrfy_command = yes
+    - regexp: virtual_transport.*
+      line: virtual_transport = dovecot
+    - regexp: virtual_alias_maps.*
+      line: virtual_alias_maps = pgsql:/etc/postfix/pgsql_aliases.cf
+    - regexp: virtual_mailbox_domains.*
+      line: virtual_mailbox_domains = localdelivery
+    - regexp: dovecot_destination_recipient_limit.*
+      line: dovecot_destination_recipient_limit = 1
+    - regexp: smtpd_milters ?=.*
+      line: smtpd_milters = unix:run/spammilter.sock
+    - regexp: milter_default_action ?=.*
+      line: milter_default_action = accept
+    - regexp: smtpd_sasl_type ?=.*
+      line: smtpd_sasl_type = dovecot
+    - regexp: smtpd_sasl_path ?=.*
+      line: smtpd_sasl_path = private/auth
+    - regexp: smtpd_sasl_auth_enable ?=.*
+      line: smtpd_sasl_auth_enable = yes
+  notify: reload postfix
+
+- name: Add dovecot lda to postfix master.cf
+  blockinfile:
+    dest: "/etc/postfix/master.cf"
+    block: |
+      dovecot   unix  -       n       n       -       -       pipe
+        flags=DRhu user={{ mail_user }}:{{ mail_user }} argv=/usr/lib/dovecot/deliver -f ${sender} -d ${user} -a ${original_recipient}
+      submission inet n - n - - smtpd
+        -o syslog_name=postfix/submission
+        -o smtpd_tls_security_level=encrypt
+        -o smtpd_sasl_auth_enable=yes
+        -o smtpd_sasl_type=dovecot
+        -o smtpd_sasl_path=private/auth
+        -o smtpd_client_restrictions=permit_sasl_authenticated,reject
+        -o smtpd_recipient_restrictions=reject_non_fqdn_recipient,reject_unknown_recipient_domain,permit_sasl_authenticated,reject
+        -o smtpd_milters=
+  notify: reload postfix
+
+- name: Install sql-config
+  template:
+    src: "pgsql_aliases.cf"
+    dest: "/etc/postfix/pgsql_aliases.cf"
+    mode: 0750
+  notify: reload postfix
+
+- name: Create system user for virtual mail
+  user:
+    name: "{{ mail_user }}"
+    uid: "{{ mail_uid }}"
+    home: "{{ mail_home }}"
+  notify: reload postfix
+
+- name: Create required directories
+  file:
+    dest: "{{ item.path }}"
+    owner: "{{ item.owner }}"
+    state: directory
+  with_items:
+    - path: "{{ mail_home }}/mail"
+      owner: "{{ mail_user }}"
+    - path: "/var/spool/postfix/run"
+      owner: "postfix"
