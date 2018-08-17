@@ -1,0 +1,36 @@
+---
+- name: Ensure dependencies are installed
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - python-milter
+
+- name: Create dir for script
+  file:
+    dest: "{{ mail_home }}/bin"
+    state: directory
+
+- name: Install spammilter
+  template:
+    src: "spammilter.py"
+    dest: "{{ mail_home }}/bin/spammilter.py"
+  notify: restart spammilter
+
+- name: Install spammilter systemd unit
+  template:
+    src: "spammilter.service"
+    dest: "/etc/systemd/system/spammilter.service"
+  register: install_unit
+
+- name: Reload systemd to find new unit
+  systemd:
+    daemon_reload: yes
+    name: spammilter
+  when: install_unit.changed
+
+- name: Enable spammilter on boot
+  service:
+    name: spammilter
+    enabled: yes
+    state: started
