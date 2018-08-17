@@ -1,0 +1,31 @@
+---
+- name: Ensure spamassassin is installed
+  apt: name=spamassassin state=present
+
+- name: Create system user for virtual mail
+  user:
+    name: "{{ mail_user }}"
+    uid: "{{ mail_uid }}"
+    home: "{{ mail_home }}"
+
+- name: Configure spamd
+  lineinfile:
+    dest: "/etc/default/spamassassin"
+    regexp: "OPTIONS=.*"
+    line: "OPTIONS=\"--create-prefs --max-children 5 --helper-home-dir {{ mail_home }}/spamd --virtual-config-dir={{ mail_home }}/spamd/%u -x -u {{ mail_user }}\""
+  notify: restart spamd
+
+- name: Create required directories
+  file:
+    dest: "{{ item.path }}"
+    owner: "{{ item.owner }}"
+    state: directory
+  with_items:
+    - path: "{{ mail_home }}/spamd"
+      owner: "{{ mail_user }}"
+
+- name: Enable spamd
+  service:
+    name: spamassassin
+    enabled: yes
+    state: started
