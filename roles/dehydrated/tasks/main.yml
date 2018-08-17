@@ -1,0 +1,33 @@
+---
+- name: Ensure dehydrated and dependencies are installed
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - dehydrated
+    - nginx
+
+- name: Disable default nginx-site
+  file:
+    state: absent
+    path: "/etc/nginx/sites-enabled/default"
+  notify: reload nginx
+
+- name: Install nginx-config
+  template:
+    src: "nginx-dehydrated"
+    dest: "/etc/nginx/sites-available/dehydrated"
+  notify: reload nginx
+
+- name: Enable nginx-config
+  file:
+    path: "/etc/nginx/sites-enabled/dehydrated"
+    src: "../sites-available/dehydrated"
+    state: link
+  notify: reload nginx
+
+- name: Enable dehydrated cron
+  template:
+    src: "cron-dehydrated"
+    dest: "/etc/cron.d/dehydrated"
+  notify: issue certificate

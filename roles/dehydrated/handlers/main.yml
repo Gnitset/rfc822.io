@@ -1,0 +1,6 @@
+---
+- name: reload nginx
+  service: name=nginx state=reloaded
+
+- name: issue certificate
+  command: "dehydrated -c -d {{ ansible_fqdn }}"
