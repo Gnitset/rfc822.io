@@ -1,0 +1,53 @@
+---
+- name: Ensure dovecot and dependencies are installed
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - dovecot-imapd
+    - dovecot-pgsql
+
+- name: Reconfigure dovecot
+  lineinfile:
+    dest: "{{ item.file }}"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  with_items:
+    - file: "/etc/dovecot/conf.d/10-auth.conf"
+      regexp: .*!include auth-system.conf.ext.*
+      line: "#!include auth-system.conf.ext"
+    - file: "/etc/dovecot/conf.d/10-auth.conf"
+      regexp: .*!include auth-rfc822.conf.ext.*
+      line: "{{ '!' }}include auth-rfc822.conf.ext"
+    - file: "/etc/dovecot/conf.d/10-mail.conf"
+      regexp: "#?mail_location =.*"
+      line: mail_location = maildir:%h/Maildir
+    - file: "/etc/dovecot/conf.d/10-ssl.conf"
+      regexp: "#?ssl =.*"
+      line: ssl = yes
+    - file: "/etc/dovecot/conf.d/10-ssl.conf"
+      regexp: "#?ssl_cert =.*"
+      line: "ssl_cert = </var/lib/dehydrated/certs/{{ ansible_fqdn }}/fullchain.pem"
+    - file: "/etc/dovecot/conf.d/10-ssl.conf"
+      regexp: "#?ssl_key =.*"
+      line: "ssl_key = </var/lib/dehydrated/certs/{{ ansible_fqdn }}/privkey.pem"
+    - file: "/etc/dovecot/conf.d/15-lda.conf"
+      regexp: "#?lda_mailbox_autocreate =.*"
+      line: lda_mailbox_autocreate = yes
+    - file: "/etc/dovecot/conf.d/15-lda.conf"
+      regexp: "#?lda_mailbox_autosubscribe =.*"
+      line: lda_mailbox_autosubscribe = yes
+  notify: reload dovecot
+
+- name: Install sql-config
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - src: "auth-rfc822.conf.ext"
+      dest: "/etc/dovecot/conf.d/auth-rfc822.conf.ext"
+    - src: "70-sasl-rfc822.conf"
+      dest: "/etc/dovecot/conf.d/70-sasl-rfc822.conf"
+    - src: "dovecot-sql-rfc822.conf.ext"
+      dest: "/etc/dovecot/dovecot-sql-rfc822.conf.ext"
+  notify: reload dovecot

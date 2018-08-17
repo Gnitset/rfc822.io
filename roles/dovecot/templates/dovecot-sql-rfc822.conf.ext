@@ -1,0 +1,5 @@
+driver = pgsql
+connect = host=localhost dbname={{ db_name }} user={{ db_user }}_dovecot password={{ db_password }}
+default_pass_scheme = SHA512-CRYPT
+password_query = SELECT password, '{{ mail_home }}/mail/' || username AS userdb_home, {{ mail_uid }} AS userdb_uid, {{ mail_uid }} AS userdb_gid FROM users WHERE username = '%n' AND login
+user_query = SELECT '{{ mail_home }}/mail/' || username AS home, {{ mail_uid }} AS uid, {{ mail_uid }} AS gid FROM users WHERE username = '%n'
