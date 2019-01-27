@@ -1,0 +1,5 @@
+hosts = 127.0.0.1
+user = {{ db_user }}_postfix
+password = {{ db_password }}
+dbname = {{ db_name }}
+query = SELECT 1 FROM user_addresses WHERE domain = canonize('%s')

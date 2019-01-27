@@ -21,6 +21,8 @@
       line: disable_vrfy_command = yes
     - regexp: virtual_transport.*
       line: virtual_transport = dovecot
+    - regexp: virtual_alias_domains.*
+      line: virtual_alias_domains = pgsql:/etc/postfix/pgsql_domains.cf
     - regexp: virtual_alias_maps.*
       line: virtual_alias_maps = pgsql:/etc/postfix/pgsql_aliases.cf
     - regexp: virtual_mailbox_domains.*
@@ -58,9 +60,12 @@
 
 - name: Install sql-config
   template:
-    src: "pgsql_aliases.cf"
-    dest: "/etc/postfix/pgsql_aliases.cf"
+    src: "{{ item }}"
+    dest: "/etc/postfix/{{ item }}"
     mode: 0750
+  with_items:
+    - "pgsql_aliases.cf"
+    - "pgsql_domains.cf"
   notify: reload postfix
 
 - name: Create system user for virtual mail
