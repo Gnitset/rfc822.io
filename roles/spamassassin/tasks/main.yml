@@ -1,6 +1,8 @@
 ---
 - name: Ensure spamassassin is installed
-  apt: name=spamassassin state=present
+  apt:
+    state: present
+    name: "spamassassin"
 
 - name: Create system user for virtual mail
   user:

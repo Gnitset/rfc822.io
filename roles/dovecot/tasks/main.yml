@@ -1,11 +1,10 @@
 ---
 - name: Ensure dovecot and dependencies are installed
   apt:
-    name: "{{ item }}"
     state: present
-  with_items:
-    - dovecot-imapd
-    - dovecot-pgsql
+    name:
+      - dovecot-imapd
+      - dovecot-pgsql
 
 - name: Reconfigure dovecot
   lineinfile:

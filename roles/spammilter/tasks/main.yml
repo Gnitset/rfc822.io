@@ -1,10 +1,9 @@
 ---
 - name: Ensure dependencies are installed
   apt:
-    name: "{{ item }}"
     state: present
-  with_items:
-    - python-milter
+    name:
+      - python-milter
 
 - name: Create dir for script
   file:

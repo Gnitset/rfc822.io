@@ -1,11 +1,10 @@
 ---
 - name: Ensure postfix and dependencies are installed
   apt:
-    name: "{{ item }}"
     state: present
-  with_items:
-    - postfix
-    - postfix-pgsql
+    name:
+      - postfix
+      - postfix-pgsql
 
 - name: Reconfigure postfix main.cf
   lineinfile:

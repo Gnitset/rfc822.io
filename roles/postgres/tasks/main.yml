@@ -1,12 +1,11 @@
 ---
 - name: Ensure postgres and dependencies are installed
   apt:
-    name: "{{ item }}"
     state: present
-  with_items:
-    - postgresql-9.6
-    - postgresql-contrib-9.6
-    - python-psycopg2
+    name:
+      - postgresql-9.6
+      - postgresql-contrib-9.6
+      - python-psycopg2
 
 - name: Create database for mail system
   become_user: postgres

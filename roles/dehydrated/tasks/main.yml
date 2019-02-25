@@ -1,11 +1,10 @@
 ---
 - name: Ensure dehydrated and dependencies are installed
   apt:
-    name: "{{ item }}"
     state: present
-  with_items:
-    - dehydrated
-    - nginx
+    name:
+      - dehydrated
+      - nginx
 
 - name: Disable default nginx-site
   file:
