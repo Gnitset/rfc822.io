@@ -6,6 +6,7 @@
     mail_uid: 5000
     db_name: rfc822
     db_user: rfc822
+    db_password: "verysecretpassword"
   roles:
     - dehydrated
     - postgres
