@@ -1,5 +1,5 @@
 ---
-- hosts: mailserver
+- hosts: all
   vars:
     mail_home: /opt/vmail
     mail_user: vmail
@@ -7,6 +7,10 @@
     db_name: rfc822
     db_user: rfc822
     db_password: "verysecretpassword"
+  pre_tasks:
+    - name: Update apt
+      apt:
+        update_cache: yes
   roles:
     - dehydrated
     - postgres

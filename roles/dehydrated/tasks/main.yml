@@ -25,8 +25,23 @@
     state: link
   notify: reload nginx
 
+- name: Create directory for certificate
+  file:
+    path: "{{ item }}"
+    mode: 0700
+    state: directory
+  with_items:
+     - "/var/lib/dehydrated"
+     - "/var/lib/dehydrated/certs"
+     - "/var/lib/dehydrated/certs/{{ ansible_fqdn }}"
+
 - name: Enable dehydrated cron
   template:
     src: "cron-dehydrated"
     dest: "/etc/cron.d/dehydrated"
   notify: issue certificate
+  when: vagrant is undefined
+
+- name: Self-sign a certificate for vagrant tests
+  command: "openssl req -subj '/CN={{ ansible_fqdn }}' -x509 -nodes -newkey rsa:2048 -keyout /var/lib/dehydrated/certs/{{ ansible_fqdn }}/privkey.pem -out /var/lib/dehydrated/certs/{{ ansible_fqdn }}/fullchain.pem"
+  when: vagrant is defined
