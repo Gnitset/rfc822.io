@@ -10,7 +10,7 @@ Vagrant.configure(2) do |config|
     debian.vm.hostname = "debian"
     debian.vm.provision :shell, inline: "apt-get install --yes python"
     debian.vm.provision :ansible do |ansible|
-      ansible.playbook = "mailserver.yml"
+      ansible.playbook = "local.yml"
       ansible.extra_vars = { vagrant: true }
       ansible.compatibility_mode = "2.0"
     end
