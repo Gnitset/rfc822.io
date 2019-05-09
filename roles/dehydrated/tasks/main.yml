@@ -2,9 +2,11 @@
 - name: Ensure dehydrated and dependencies are installed
   apt:
     state: present
+    install_recommends: no
     name:
       - dehydrated
-      - nginx
+      - nginx-light
+      - cron
 
 - name: Disable default nginx-site
   file:
@@ -31,7 +33,6 @@
     mode: 0700
     state: directory
   with_items:
-     - "/var/lib/dehydrated"
      - "/var/lib/dehydrated/certs"
      - "/var/lib/dehydrated/certs/{{ ansible_fqdn }}"
 
