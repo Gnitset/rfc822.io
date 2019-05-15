@@ -7,6 +7,7 @@
       - postgresql-contrib-9.6
       - python-psycopg2
       - acl
+      - sudo
 
 - name: Create database for mail system
   become_user: postgres
