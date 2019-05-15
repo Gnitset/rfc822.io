@@ -7,5 +7,5 @@ server {
 	location / {
 		try_files $uri $uri/ =404;
 	}
-	location /.well-known/acme-challenge/ { alias /var/lib/dehydrated/acme-challenges/; }
+	location ^~ /.well-known/acme-challenge/ { alias /var/lib/dehydrated/acme-challenges/; }
 }
