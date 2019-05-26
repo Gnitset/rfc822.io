@@ -4,7 +4,9 @@
     state: present
     name:
       - dovecot-imapd
+      - dovecot-managesieved
       - dovecot-pgsql
+      - dovecot-sieve
 
 - name: Reconfigure dovecot
   lineinfile:
@@ -36,6 +38,9 @@
     - file: "/etc/dovecot/conf.d/15-lda.conf"
       regexp: "#?lda_mailbox_autosubscribe =.*"
       line: lda_mailbox_autosubscribe = yes
+    - file: "/etc/dovecot/conf.d/15-lda.conf"
+      regexp: "#?mail_plugins =.*"
+      line: "  mail_plugins = $mail_plugins sieve"
   notify: reload dovecot
 
 - name: Install sql-config
