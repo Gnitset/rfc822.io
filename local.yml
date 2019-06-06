@@ -6,11 +6,31 @@
     mail_uid: 5000
     db_name: rfc822
     db_user: rfc822
-    db_password: "verysecretpassword"
   pre_tasks:
+    - name: Fetch/generate passwords
+      set_fact:
+        password_postgres_dovecot: "{{ ansible_local.passwords.postgres.dovecot|default(9999999999999999999999 | random | to_uuid) }}"
+        password_postgres_postfix: "{{ ansible_local.passwords.postgres.postfix|default(9999999999999999999999 | random | to_uuid) }}"
+        password_postgres_spamd: "{{ ansible_local.passwords.postgres.spamd|default(9999999999999999999999 | random | to_uuid) }}"
     - name: Update apt
       apt:
         update_cache: yes
+    - name: Save passwords
+      ini_file:
+        dest: /etc/ansible/facts.d/passwords.fact
+        mode: 0600
+        owner: root
+        group: root
+        section: postgres
+        option: "{{ item.option }}"
+        value: "{{ item.value }}"
+      with_items:
+        - option: dovecot
+          value: "{{ password_postgres_dovecot }}"
+        - option: postfix
+          value: "{{ password_postgres_postfix }}"
+        - option: spamd
+          value: "{{ password_postgres_spamd }}"
   roles:
     - dehydrated
     - postgres

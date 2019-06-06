@@ -9,7 +9,7 @@ import psycopg2
 
 db_config={}
 db_config["user"] = "{{ db_user }}_spamd"
-db_config["password"] = "{{ db_password }}"
+db_config["password"] = "{{ password_postgres_spamd }}"
 db_config["database"] = "{{ db_name }}"
 db_config["host"] = "localhost"
 

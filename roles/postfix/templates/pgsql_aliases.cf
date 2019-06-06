@@ -1,5 +1,5 @@
 hosts = 127.0.0.1
 user = {{ db_user }}_postfix
-password = {{ db_password }}
+password = {{ password_postgres_postfix }}
 dbname = {{ db_name }}
 query = SELECT target from mailtarget('%s')

@@ -19,13 +19,16 @@
   become_user: postgres
   postgresql_user:
     db: "{{ db_name }}"
-    user: "{{ db_user }}_{{ item }}"
-    password: "{{ db_password }}"
+    user: "{{ db_user }}_{{ item.user }}"
+    password: "{{ item.password }}"
     encrypted: yes
   with_items:
-    - dovecot
-    - postfix
-    - spamd
+    - user: dovecot
+      password: "{{ password_postgres_dovecot }}"
+    - user: postfix
+      password: "{{ password_postgres_postfix }}"
+    - user: spamd
+      password: "{{ password_postgres_spamd }}"
 
 - name: Copy db-schema file
   become_user: postgres
