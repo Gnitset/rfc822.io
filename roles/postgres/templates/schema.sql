@@ -137,6 +137,16 @@ BEGIN
 END;
 $$;
 
+CREATE TABLE dkim (
+   domain_name text not null,
+   selector    text not null,
+   private_key text,
+   public_key  text,
+
+   PRIMARY KEY (domain_name)
+);
+
 GRANT SELECT ON user_addresses, users, address_types TO rfc822_dovecot;
 GRANT SELECT ON user_addresses, users, address_types TO rfc822_postfix;
 GRANT SELECT ON user_addresses, users, address_types TO rfc822_spamd;
+GRANT SELECT ON dkim TO rfc822_opendkim;

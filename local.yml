@@ -10,6 +10,7 @@
     - name: Fetch/generate passwords
       set_fact:
         password_postgres_dovecot: "{{ ansible_local.passwords.postgres.dovecot|default(9999999999999999999999 | random | to_uuid) }}"
+        password_postgres_opendkim: "{{ ansible_local.passwords.postgres.opendkim|default(9999999999999999999999 | random | to_uuid) }}"
         password_postgres_postfix: "{{ ansible_local.passwords.postgres.postfix|default(9999999999999999999999 | random | to_uuid) }}"
         password_postgres_spamd: "{{ ansible_local.passwords.postgres.spamd|default(9999999999999999999999 | random | to_uuid) }}"
     - name: Update apt
@@ -27,6 +28,8 @@
       with_items:
         - option: dovecot
           value: "{{ password_postgres_dovecot }}"
+        - option: opendkim
+          value: "{{ password_postgres_opendkim }}"
         - option: postfix
           value: "{{ password_postgres_postfix }}"
         - option: spamd
@@ -38,3 +41,4 @@
     - postfix
     - dovecot
     - spammilter
+    - opendkim

@@ -25,6 +25,8 @@
   with_items:
     - user: dovecot
       password: "{{ password_postgres_dovecot }}"
+    - user: opendkim
+      password: "{{ password_postgres_opendkim }}"
     - user: postfix
       password: "{{ password_postgres_postfix }}"
     - user: spamd

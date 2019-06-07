@@ -1,0 +1,35 @@
+---
+- name: Ensure opendkim and dependencies are installed
+  apt:
+    state: present
+    name:
+      - opendkim
+      - opendkim-tools
+      - libopendbx1-pgsql
+
+- name: Reconfigure opendkim.conf
+  lineinfile:
+    dest: "/etc/opendkim.conf"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  with_items:
+    - regexp: Socket.*
+      line: "Socket local:/var/spool/postfix/run/opendkim.sock"
+    - regexp: SigningTable.*
+      line: "SigningTable dsn:pgsql://{{ db_user }}_opendkim:{{ password_postgres_opendkim }}@127.0.0.1/{{ db_name }}/table=dkim?keycol=domain_name?datacol=domain_name"
+    - regexp: KeyTable.*
+      line: "KeyTable dsn:pgsql://{{ db_user }}_opendkim:{{ password_postgres_opendkim }}@127.0.0.1/{{ db_name }}/table=dkim?keycol=domain_name?datacol=domain_name,selector,private_key"
+  notify: reload opendkim
+
+- name: Add opendkim to postfix group
+  user:
+    name: opendkim
+    groups: postfix
+    append: yes
+  notify: reload opendkim
+
+- name: Enable opendkim on boot
+  service:
+    name: opendkim
+    enabled: yes
+    state: started
