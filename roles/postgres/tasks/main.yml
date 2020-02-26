@@ -3,8 +3,8 @@
   apt:
     state: present
     name:
-      - postgresql-9.6
-      - postgresql-contrib-9.6
+      - postgresql-11
+      - postgresql-contrib-11
       - python-psycopg2
       - acl
       - sudo
