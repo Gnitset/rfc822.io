@@ -3,7 +3,8 @@ rfc822.io
 
 An ansible setup for The Perfect Mailserver(tm) ;)
 
-* apt install python-pip
+Steps to install:
+* apt install --no-install-recommends python-pip python-setuptools
 * pip install ansible
 * ansible-playbook local.yml
 
