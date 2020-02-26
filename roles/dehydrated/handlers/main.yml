@@ -2,5 +2,8 @@
 - name: reload nginx
   service: name=nginx state=reloaded
 
+- name: accept letsencrypt
+  command: "dehydrated --register --accept-terms"
+
 - name: issue certificate
   command: "dehydrated -c -d {{ ansible_fqdn }}"
