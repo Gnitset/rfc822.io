@@ -9,10 +9,10 @@
   pre_tasks:
     - name: Fetch/generate passwords
       set_fact:
-        password_postgres_dovecot: "{{ ansible_local.passwords.postgres.dovecot|default(9999999999999999999999 | random | to_uuid) }}"
-        password_postgres_opendkim: "{{ ansible_local.passwords.postgres.opendkim|default(9999999999999999999999 | random | to_uuid) }}"
-        password_postgres_postfix: "{{ ansible_local.passwords.postgres.postfix|default(9999999999999999999999 | random | to_uuid) }}"
-        password_postgres_spamd: "{{ ansible_local.passwords.postgres.spamd|default(9999999999999999999999 | random | to_uuid) }}"
+        password_postgres_dovecot: "{% if ansible_local.passwords is defined %}{{ ansible_local.passwords.postgres.dovecot }}{% else %}{{ 9999999999999999999999 | random | to_uuid }}{% endif %}"
+        password_postgres_opendkim: "{% if ansible_local.passwords is defined %}{{ ansible_local.passwords.postgres.opendkim }}{% else %}{{ 9999999999999999999999 | random | to_uuid }}{% endif %}"
+        password_postgres_postfix: "{% if ansible_local.passwords is defined %}{{ ansible_local.passwords.postgres.postfix }}{% else %}{{ 9999999999999999999999 | random | to_uuid }}{% endif %}"
+        password_postgres_spamd: "{% if ansible_local.passwords is defined %}{{ ansible_local.passwords.postgres.spamd }}{% else %}{{ 9999999999999999999999 | random | to_uuid }}{% endif %}"
     - name: Update apt
       apt:
         update_cache: yes
