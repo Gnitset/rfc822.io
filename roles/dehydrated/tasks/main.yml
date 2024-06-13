@@ -13,7 +13,7 @@
   file:
     state: absent
     path: "/etc/nginx/sites-enabled/default"
-  notify: reload nginx
+  notify: "dehydrated : reload nginx"
 
 - name: Install nginx-config
   template:
@@ -42,3 +42,6 @@
     src: "cron-dehydrated"
     dest: "/etc/cron.d/dehydrated"
   notify: issue certificate
+
+- name: Flush handlers
+  meta: flush_handlers

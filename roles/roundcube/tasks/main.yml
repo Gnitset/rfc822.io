@@ -1,0 +1,95 @@
+---
+- name: Ensure docker and dependencies are installed
+  apt:
+    state: present
+    install_recommends: false
+    name:
+      - cgroupfs-mount
+      - docker.io
+      - python3-docker
+
+- name: Create dir for config
+  file:
+    dest: "/opt/roundcube_config"
+    state: directory
+
+- name: Install roundcube config
+  template:
+    src: "{{ item }}"
+    dest: "/opt/roundcube_config/{{ item }}"
+    mode: 0o640
+    owner: 33
+    group: 33
+  with_items:
+  - "config.inc.php"
+  - "managesieve.inc.php"
+  - "roundcube.apache"
+
+- name: Create db user for roundcube
+  become_user: postgres
+  postgresql_user:
+    user: "{{ db_user }}_roundcube"
+    password: "{{ password_postgres_roundcube }}"
+    encrypted: yes
+
+- name: Create roundcube databases
+  become_user: postgres
+  postgresql_db:
+    name: "roundcubemail"
+    owner: "{{ db_user }}_roundcube"
+
+- name: Allow roundcube database access
+  postgresql_pg_hba:
+    dest: "{{ item }}"
+    contype: local
+    users: "{{ db_user }}_roundcube"
+    databases: "roundcubemail"
+    method: "scram-sha-256"
+  with_items:
+  - "{{ '/etc/postgresql/*/main/pg_hba.conf' | fileglob }}"
+  notify: reload postgresql
+
+- name: Deploy watchtower
+  docker_container:
+    name: watchtower
+    image: containrrr/watchtower
+    state: started
+    restart_policy: unless-stopped
+    volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+    env:
+      WATCHTOWER_NOTIFICATIONS: email
+      WATCHTOWER_NOTIFICATION_EMAIL_FROM: "watchtower@{{ ansible_fqdn }}"
+      WATCHTOWER_NOTIFICATION_EMAIL_TO: "{{ watchtower_to | default('root@localhost') }}"
+      WATCHTOWER_NOTIFICATION_EMAIL_SERVER: "{{ ansible_fqdn }}"
+
+- name: Flush handlers
+  meta: flush_handlers
+
+- name: Deploy roundcube
+  docker_container:
+    name: roundcube
+    image: roundcube/roundcubemail
+    state: started
+    restart_policy: unless-stopped
+    volumes:
+    - /opt/roundcube_config/roundcube.apache:/etc/apache2/mods-enabled/remoteip.conf
+    - /opt/roundcube_config:/var/roundcube/config
+    - /var/run/postgresql:/var/run/postgresql
+    ports:
+    - 127.0.0.1:8000:80
+    env:
+      ROUNDCUBEMAIL_UPLOAD_MAX_FILESIZE: "128M"
+
+- name: Install nginx-config
+  template:
+    src: "nginx-roundcube"
+    dest: "/etc/nginx/sites-available/roundcube"
+  notify: reload nginx
+
+- name: Enable nginx-config
+  file:
+    path: "/etc/nginx/sites-enabled/roundcube"
+    src: "../sites-available/roundcube"
+    state: link
+  notify: reload nginx

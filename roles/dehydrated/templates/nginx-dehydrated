@@ -5,7 +5,7 @@ server {
 	index index.html;
 	server_name _;
 	location / {
-		try_files $uri $uri/ =404;
+		rewrite ^ https://$host$request_uri permanent;
 	}
 	location ^~ /.well-known/acme-challenge/ { alias /var/lib/dehydrated/acme-challenges/; }
 }

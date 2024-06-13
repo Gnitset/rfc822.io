@@ -1,0 +1,5 @@
+---
+- name: reload postgresql
+  service: name=postgresql state=reloaded
+- name: reload nginx
+  service: name=nginx state=reloaded

@@ -12,6 +12,7 @@
         password_postgres_dovecot: "{% if ansible_local.passwords is defined %}{{ ansible_local.passwords.postgres.dovecot }}{% else %}{{ 9999999999999999999999 | random | to_uuid }}{% endif %}"
         password_postgres_opendkim: "{% if ansible_local.passwords is defined %}{{ ansible_local.passwords.postgres.opendkim }}{% else %}{{ 9999999999999999999999 | random | to_uuid }}{% endif %}"
         password_postgres_postfix: "{% if ansible_local.passwords is defined %}{{ ansible_local.passwords.postgres.postfix }}{% else %}{{ 9999999999999999999999 | random | to_uuid }}{% endif %}"
+        password_postgres_roundcube: "{% if ansible_local.passwords is defined %}{{ ansible_local.passwords.postgres.roundcube }}{% else %}{{ 9999999999999999999999 | random | to_uuid }}{% endif %}"
         password_postgres_spamd: "{% if ansible_local.passwords is defined %}{{ ansible_local.passwords.postgres.spamd }}{% else %}{{ 9999999999999999999999 | random | to_uuid }}{% endif %}"
     - name: Update apt
       apt:
@@ -33,6 +34,8 @@
           value: "{{ password_postgres_opendkim }}"
         - option: postfix
           value: "{{ password_postgres_postfix }}"
+        - option: roundcube
+          value: "{{ password_postgres_roundcube }}"
         - option: spamd
           value: "{{ password_postgres_spamd }}"
     - name: Create system user for virtual mail
@@ -53,3 +56,4 @@
     - dovecot
     - spammilter
     - opendkim
+    - roundcube
