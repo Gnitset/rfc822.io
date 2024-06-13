@@ -42,8 +42,3 @@
     src: "cron-dehydrated"
     dest: "/etc/cron.d/dehydrated"
   notify: issue certificate
-  when: vagrant is undefined
-
-- name: Self-sign a certificate for vagrant tests
-  command: "openssl req -subj '/CN={{ ansible_fqdn }}' -x509 -nodes -newkey rsa:2048 -keyout /var/lib/dehydrated/certs/{{ ansible_fqdn }}/privkey.pem -out /var/lib/dehydrated/certs/{{ ansible_fqdn }}/fullchain.pem"
-  when: vagrant is defined
