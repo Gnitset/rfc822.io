@@ -3,9 +3,9 @@
   apt:
     state: present
     name:
-      - postgresql-11
-      - postgresql-contrib-11
-      - python-psycopg2
+      - postgresql
+      - postgresql-contrib
+      - python3-psycopg2
       - acl
       - sudo
 

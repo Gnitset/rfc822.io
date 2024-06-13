@@ -2,11 +2,11 @@
 - name: Ensure dehydrated and dependencies are installed
   apt:
     state: present
-    install_recommends: no
     name:
       - dehydrated
       - nginx-light
       - cron
+    install_recommends: false
   notify: accept letsencrypt
 
 - name: Disable default nginx-site
@@ -19,19 +19,19 @@
   template:
     src: "nginx-dehydrated"
     dest: "/etc/nginx/sites-available/dehydrated"
-  notify: reload nginx
+  notify: "dehydrated : reload nginx"
 
 - name: Enable nginx-config
   file:
     path: "/etc/nginx/sites-enabled/dehydrated"
     src: "../sites-available/dehydrated"
     state: link
-  notify: reload nginx
+  notify: "dehydrated : reload nginx"
 
 - name: Create directory for certificate
   file:
     path: "{{ item }}"
-    mode: 0700
+    mode: 0o700
     state: directory
   with_items:
      - "/var/lib/dehydrated/certs"

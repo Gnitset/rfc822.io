@@ -15,11 +15,12 @@
         password_postgres_spamd: "{% if ansible_local.passwords is defined %}{{ ansible_local.passwords.postgres.spamd }}{% else %}{{ 9999999999999999999999 | random | to_uuid }}{% endif %}"
     - name: Update apt
       apt:
+        cache_valid_time: 3600
         update_cache: yes
     - name: Save passwords
       ini_file:
         dest: /etc/ansible/facts.d/passwords.fact
-        mode: 0600
+        mode: 0o600
         owner: root
         group: root
         section: postgres
@@ -34,6 +35,16 @@
           value: "{{ password_postgres_postfix }}"
         - option: spamd
           value: "{{ password_postgres_spamd }}"
+    - name: Create system user for virtual mail
+      user:
+        name: "{{ mail_user }}"
+        uid: "{{ mail_uid }}"
+        home: "{{ mail_home }}"
+    - name: "Fix permissions on {{ mail_home }}"
+      file:
+        path: "{{ mail_home }}"
+        mode: 0o755
+        state: directory
   roles:
     - dehydrated
     - postgres

@@ -3,7 +3,7 @@
   apt:
     state: present
     name:
-      - python-milter
+      - python3-milter
 
 - name: Create dir for script
   file:

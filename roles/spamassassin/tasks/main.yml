@@ -3,16 +3,11 @@
   apt:
     state: present
     name: "spamassassin"
-
-- name: Create system user for virtual mail
-  user:
-    name: "{{ mail_user }}"
-    uid: "{{ mail_uid }}"
-    home: "{{ mail_home }}"
+    install_recommends: true
 
 - name: Configure spamd
   lineinfile:
-    dest: "/etc/default/spamassassin"
+    dest: "/etc/default/spamd"
     regexp: "OPTIONS=.*"
     line: "OPTIONS=\"--create-prefs --max-children 5 --helper-home-dir {{ mail_home }}/spamd --virtual-config-dir={{ mail_home }}/spamd/%u -x -u {{ mail_user }}\""
   notify: restart spamd
@@ -28,6 +23,6 @@
 
 - name: Enable spamd
   service:
-    name: spamassassin
+    name: spamd
     enabled: yes
     state: started

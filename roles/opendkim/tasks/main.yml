@@ -12,6 +12,7 @@
     dest: "/etc/opendkim.conf"
     regexp: "{{ item.regexp }}"
     line: "{{ item.line }}"
+    mode: 0o640
   with_items:
     - regexp: Socket.*
       line: "Socket local:/var/spool/postfix/run/opendkim.sock"

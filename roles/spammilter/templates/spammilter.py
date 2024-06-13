@@ -50,18 +50,18 @@ class SpamdMilter(Milter.Base):
 
     @Milter.noreply
     def body(self, chunk):
-        self.mail.append(chunk)
+        self.mail.append(chunk.decode("UTF-8"))
         return Milter.CONTINUE
 
     def eom(self):
         mail = "".join(self.mail)
         user = self.lookup_user()
         spamc = subprocess.Popen(["/usr/bin/spamc", "-E", "--headers", "-u", user], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-        spamd_output, _ = spamc.communicate(mail)
+        spamd_output, _ = spamc.communicate(mail.encode("UTF-8"))
         if spamc.returncode == 1:
             return Milter.REJECT
-        msg_post_scan = email.message_from_string(spamd_output)
-        for header, value in msg_post_scan.items():
+        msg_post_scan = email.message_from_string(spamd_output.decode("UTF-8"))
+        for header, value in list(msg_post_scan.items()):
             if header in self.wantedheaders:
                 self.addheader(header, value)
         self.addheader("X-Rcpt-To", self.to)
@@ -88,7 +88,7 @@ class SpamdMilter(Milter.Base):
 
 
 if __name__ == "__main__":
-    os.umask(0007)
+    os.umask(0o007)
     socketname = "/var/spool/postfix/run/spammilter.sock"
     timeout = 600
     SpamdMilter.db["config"] = db_config

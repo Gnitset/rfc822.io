@@ -23,6 +23,9 @@
     - file: "/etc/dovecot/conf.d/10-mail.conf"
       regexp: "#?mail_location =.*"
       line: mail_location = maildir:%h/Maildir
+    - file: "/etc/dovecot/conf.d/10-mail.conf"
+      regexp: "#?mail_plugins =.*"
+      line: "mail_plugins = $mail_plugins lazy_expunge acl"
     - file: "/etc/dovecot/conf.d/10-ssl.conf"
       regexp: "#?ssl =.*"
       line: ssl = yes
@@ -43,10 +46,11 @@
       line: "  mail_plugins = $mail_plugins sieve"
   notify: reload dovecot
 
-- name: Install sql-config
+- name: Install additional dovecot config files
   template:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
+    mode: "{{ item.mode | default('644') }}"
   with_items:
     - src: "auth-rfc822.conf.ext"
       dest: "/etc/dovecot/conf.d/auth-rfc822.conf.ext"
@@ -54,4 +58,11 @@
       dest: "/etc/dovecot/conf.d/70-sasl-rfc822.conf"
     - src: "dovecot-sql-rfc822.conf.ext"
       dest: "/etc/dovecot/dovecot-sql-rfc822.conf.ext"
+      mode: "640"
+    - src: "91-stats.conf"
+      dest: "/etc/dovecot/conf.d/91-stats.conf"
+    - src: "91-lazy_expunge.conf"
+      dest: "/etc/dovecot/conf.d/91-lazy_expunge.conf"
+    - src: "dovecot.acl"
+      dest: "/etc/dovecot/dovecot.acl"
   notify: reload dovecot

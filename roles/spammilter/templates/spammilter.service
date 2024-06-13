@@ -6,7 +6,7 @@ After=postgresql.service
 [Service]
 User=postfix
 WorkingDirectory={{ mail_home }}
-ExecStart=/usr/bin/python {{ mail_home }}/bin/spammilter.py
+ExecStart=/usr/bin/python3 {{ mail_home }}/bin/spammilter.py
 
 [Install]
 WantedBy=multi-user.target

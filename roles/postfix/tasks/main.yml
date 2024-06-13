@@ -63,17 +63,10 @@
   template:
     src: "{{ item }}"
     dest: "/etc/postfix/{{ item }}"
-    mode: 0750
+    mode: 0o640
   with_items:
     - "pgsql_aliases.cf"
     - "pgsql_domains.cf"
-  notify: reload postfix
-
-- name: Create system user for virtual mail
-  user:
-    name: "{{ mail_user }}"
-    uid: "{{ mail_uid }}"
-    home: "{{ mail_home }}"
   notify: reload postfix
 
 - name: Create required directories
