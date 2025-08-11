@@ -9,5 +9,6 @@ $config['sent_mbox'] = 'Sent Messages';
 $config['trash_mbox'] = 'Deleted Messages';
 $config['message_show_email'] = true;
 $config['proxy_whitelist'] = array('127.0.0.1', '172.17.0.1');
+$config['max_message_size'] = '512M';
 
 $config['plugins'] = array('archive', 'managesieve', 'zipdownload');

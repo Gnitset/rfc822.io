@@ -40,6 +40,8 @@
       line: smtpd_sasl_auth_enable = yes
     - regexp: ^non_smtpd_milters ?=.*
       line: non_smtpd_milters = unix:run/opendkim.sock
+    - regexp: ^message_size_limit ?=.*
+      line: message_size_limit = 536870912
   notify: reload postfix
 
 - name: Add dovecot lda to postfix master.cf
